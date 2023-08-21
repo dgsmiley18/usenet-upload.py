@@ -4,7 +4,7 @@ Crude and simple script to upload `.mkv` files in a given directory.
 
 ## Features
 - Generates `par2` files for each `.mkv`
-- Doesn't move the files into their own folders, instead it directly passes the `.mkv` file along with it's corresponding `.par2` files directly to Nyuu via CLI to achieve the same result
+- Doesn't move the files into their own folders, instead it passes the `.mkv` file along with it's corresponding `.par2` files directly to Nyuu via CLI to achieve the same result
 - Has no error handling
 - Has no customization
 - Can't continue where it stopped if you crash or something
