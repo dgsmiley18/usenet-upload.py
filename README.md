@@ -13,7 +13,7 @@ Crude and simple script to upload `.mkv` files in a given directory.
 
 ## Prerequisites
 - [Python 3.11](https://www.python.org/downloads/)
-- [animetosho/Nyuu@a4b1712](https://github.com/animetosho/Nyuu/commit/a4b1712d77faeacaae114c966c238773acc534fb) - You need this version or newer. [This is outdated and you shouldn't use it](https://github.com/animetosho/Nyuu/releases/tag/v0.4.1).
+- [animetosho/Nyuu@a4b1712](https://github.com/animetosho/Nyuu/commit/a4b1712d77faeacaae114c966c238773acc534fb) - You need this version or newer. [v0.4.1 is outdated and you shouldn't use it](https://github.com/animetosho/Nyuu/releases/tag/v0.4.1).
 - [animetosho/ParPar](https://github.com/animetosho/ParPar)
 
 ## Usage
