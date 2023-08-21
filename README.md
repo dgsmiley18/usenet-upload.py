@@ -18,6 +18,36 @@ Crude and simple script to upload `.mkv` files in a given directory.
 
 ## Usage
 
+Before you can use this, you have the edit [first three variables](https://github.com/cannibalChipper/usenet-upload.py/blob/main/usenet-upload.py#L7-L10).
+
+Paths work differently on Windows. Assume your path is `C:\Users\username\usenet\nyuu.exe`. This won't work. You can fix it in two ways:
+```py
+PARPAR = ["C:\\Users\\username\\usenet\\parpar"]
+NYUU = ["C:\\Users\\username\\usenet\\nyuu.exe"]
+NYUU_CONFIG = "C:\\Users\\username\\usenet\\config.json"
+```
+OR
+```py
+PARPAR = [r"C:\Users\username\usenet\parpar"]
+NYUU = [r"C:\Users\username\usenet\nyuu.exe"]
+NYUU_CONFIG = r"C:\Users\username\usenet\config.json"
+```
+
+### Windows
+```
+usenet-upload.py path/to/directory/with/mkv/files
+```
+```
+py usenet-upload.py path/to/directory/with/mkv/files
+```
+
+### Linux
+```
+python3 usenet-upload.py path/to/directory/with/mkv/files
+```
+
+### help
+
 ```
 > usenet-upload.py --help
 usage: usenet-upload.py [-h] [-p] [-n] path
@@ -31,17 +61,4 @@ options:
   -h, --help    show this help message and exit
   -p, --parpar  Only run Parpar
   -n, --nyuu    Only run Nyuu
-```
-
-## Windows
-```
-usenet-upload.py path/to/directory/with/mkv/files
-```
-```
-py usenet-upload.py path/to/directory/with/mkv/files
-```
-
-## Linux
-```
-python3 usenet-upload.py path/to/directory/with/mkv/files
 ```
