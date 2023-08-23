@@ -2,47 +2,85 @@ import argparse
 import glob
 import subprocess
 import os
+import json
+import shutil
 from colorama import Fore
 
+with open("config.json") as file:
+    data = json.load(file)
+
 # Config
-PARPAR = ["parpar.exe"]
-NYUU = ["nyuu.exe"]
-NYUU_CONFIG = "config.json"
+PARPAR = data["PARPAR"]
+NYUU = data["NYUU"]
+NYUU_CONFIG = data["NYUU_CONFIG"]
 
 def get_mkv_files(input_path: str) -> list[str]:
-    mkv_files = list(glob.glob(pathname="*.mkv", root_dir=input_path))
+    mkv_files = list(glob.glob(pathname="**/*.mkv", root_dir=input_path, recursive=True))
     return mkv_files
 
-def parpar(input_path: str) -> None:
-    args = ['-s700k', '--slice-size-multiple=700K', '--max-input-slices=4000', '-r1n*1.2', '-R', '--filepath-format', 'basename', '-o']
-    for file in get_mkv_files(input_path):
-        file_without_ext = os.path.splitext(file)[0]
-        parpar_cmd = PARPAR + args + [file_without_ext, file]
-        print(Fore.GREEN + f"Generating PAR2 files for {file} with parpar\n")
-        subprocess.run(parpar_cmd, cwd=input_path)
+def parpar(input_path, move=False) -> None:
+    args = "-s700k --slice-size-multiple=700K --max-input-slices=4000 -r1n*1.2 -R --filepath-format basename -o"
+    if len(get_mkv_files(input_path)) != 0:
+        for file in get_mkv_files(input_path):
+            file_without_ext = os.path.splitext(file)[0]
+            # check if move is True, if yes, it will move the files
+            if move is not False:
+                # Create a directory to move the files
+                try:
+                    destination_folder_path = os.path.join(input_path, file_without_ext)
+                    os.makedirs(destination_folder_path, exist_ok= False)
+                except FileExistsError:
+                    print("Folder already exists, jumping...")
+                
+                # move the files to the new directory
+                shutil.move(os.path.join(input_path, file), destination_folder_path)
+                input_path_new = destination_folder_path
+
+                parpar_cmd = f'{PARPAR} {args} "{file_without_ext}" "{file}"'
+                print(Fore.GREEN + f"Generating PAR2 files for {file} with parpar\n")
+                subprocess.run(parpar_cmd, cwd=input_path_new)
+            else:
+                parpar_cmd = f'{PARPAR} {args} "{file_without_ext}" "{file}"'
+                print(Fore.GREEN + f"Generating PAR2 files for {file} with parpar\n")
+                subprocess.run(parpar_cmd, cwd=input_path)
+        print("All files were compressed")
+    else:
+        print("0 .mkv found, please put a valid path")
 
 def nyuu(input_path: str) -> None:
     args = ["-C", NYUU_CONFIG, "-o"]
-    for file in get_mkv_files(input_path):
-        file_without_ext = os.path.splitext(file)[0]
-        par2_files = list(glob.glob(pathname=f"{glob.escape(file_without_ext)}*.par2", root_dir=input_path))
-        nyuu_cmd = NYUU + args + [f"{file_without_ext}.nzb", file] + par2_files
-        print(Fore.GREEN + f"Uploading {file} along with PAR2 files with nyuu\n")
-        subprocess.run(nyuu_cmd, cwd=input_path)
+    if len(get_mkv_files(input_path)) != 0:
+        for file in get_mkv_files(input_path):
+            file_without_ext = os.path.splitext(file)[0]
+            par2_files = list(glob.glob(pathname=f"{glob.escape(file_without_ext)}*.par2", root_dir=input_path, recursive=True))
+            nyuu_cmd = f'{NYUU} {args} {file_without_ext}.nzb {file} {par2_files}'
+            print(Fore.GREEN + f"Uploading {file} along with PAR2 files with nyuu\n")
+            subprocess.run(nyuu_cmd, cwd=input_path)
+    else:
+        print("0 .mkv found, please put a valid path")
 
 def main():
     parser = argparse.ArgumentParser(description="A script for uploading MKV files to usenet")
     parser.add_argument("path", type=str, help="Path to directory containing .mkv files")
     parser.add_argument("-p", "--parpar", action="store_true", help="Only run Parpar")
     parser.add_argument("-n", "--nyuu", action="store_true", help="Only run Nyuu")
+    parser.add_argument("-m", "--move", action="store_true", help="Allow the script to create folders and move the files")
     args = parser.parse_args()
 
-    if args.parpar:
+    # check if script has the args -p and -m
+    if args.parpar and args.move:
+        parpar(args.path, move=True)
+    # if only -p is passed, run parpar without moving the files
+    elif args.parpar:
         parpar(args.path)
 
     elif args.nyuu:
         nyuu(args.path)
     
+    elif args.move:
+        parpar(args.path, move=True)
+        nyuu(args.path)
+    # if no args are passed, run parpar and nyuu
     else:
         parpar(args.path)
         nyuu(args.path)
