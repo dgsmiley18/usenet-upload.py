@@ -61,7 +61,7 @@ def nyuu(input_path: str) -> None:
             filtered_par2_files = [par2_file for par2_file in par2_files if file_without_ext in par2_file]
             par2_files_str = " ".join([f'"{par2_file}"' for par2_file in filtered_par2_files])
 
-            nyuu_cmd = f'{NYUU} {args} "{file_without_ext2}.nzb" {par2_files_str}'
+            nyuu_cmd = f'{NYUU} {args} "{file_without_ext2}.nzb" "{file}" {par2_files_str}'
             print(nyuu_cmd)
             if os.path.isfile(os.path.join(input_path, f"{file_without_ext}.nzb")):
                 print(Fore.YELLOW + f"{file_without_ext2}.nzb already exists, skipping...")
