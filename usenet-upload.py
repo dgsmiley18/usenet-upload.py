@@ -48,14 +48,27 @@ def parpar(input_path, move=False) -> None:
         print("0 .mkv found, please put a valid path")
 
 def nyuu(input_path: str) -> None:
-    args = ["-C", NYUU_CONFIG, "-o"]
+    args = f'-C "{NYUU_CONFIG}" -o'
     if len(get_mkv_files(input_path)) != 0:
         for file in get_mkv_files(input_path):
+            # get the file name without the extension
             file_without_ext = os.path.splitext(file)[0]
+            # get the file name without extension + folder location
+            file_without_ext2 = os.path.splitext(os.path.basename(file))[0]
+
+            # search for all the par2 files that have the same name as the mkv file
             par2_files = list(glob.glob(pathname=f"{glob.escape(file_without_ext)}*.par2", root_dir=input_path, recursive=True))
-            nyuu_cmd = f'{NYUU} {args} {file_without_ext}.nzb {file} {par2_files}'
-            print(Fore.GREEN + f"Uploading {file} along with PAR2 files with nyuu\n")
-            subprocess.run(nyuu_cmd, cwd=input_path)
+            filtered_par2_files = [par2_file for par2_file in par2_files if file_without_ext in par2_file]
+            par2_files_str = " ".join([f'"{par2_file}"' for par2_file in filtered_par2_files])
+
+            nyuu_cmd = f'{NYUU} {args} "{file_without_ext2}.nzb" {par2_files_str}'
+            print(nyuu_cmd)
+            if os.path.isfile(os.path.join(input_path, f"{file_without_ext}.nzb")):
+                print(Fore.YELLOW + f"{file_without_ext2}.nzb already exists, skipping...")
+                continue
+            else:
+                print(Fore.GREEN + f"Uploading {file} along with PAR2 files with nyuu\n")
+                subprocess.run(nyuu_cmd, cwd=input_path)
     else:
         print("0 .mkv found, please put a valid path")
 
